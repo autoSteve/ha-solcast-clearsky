@@ -5,5 +5,6 @@
   "config_flow": true,
   "documentation": "https://github.com/autoSteve/ha-solcast-clearsky",
   "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/autoSteve/ha-solcast-clearsky/issues",
   "version": "0.1.0"
 }
