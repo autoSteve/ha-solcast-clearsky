@@ -1,35 +1,55 @@
 {
-  "config": {
-    "abort": {
-      "already_configured": "Solcast Clear Sky is already configured.",
-      "solcast_solar_not_configured": "The solcast_solar integration must be configured first."
-    },
-    "error": {
-      "auth": "Invalid OpenWeatherMap API key.",
-      "connection": "Unable to connect to OpenWeatherMap.",
-      "unknown": "An unexpected error occurred."
-    },
-    "step": {
-      "user": {
-        "data": {
-          "owm_api_key": "OpenWeatherMap API Key"
+    "config": {
+        "abort": {
+            "already_configured": "Solcast Clear Sky is already configured.",
+            "solcast_solar_not_configured": "The solcast_solar integration must be configured first."
         },
-        "description": "Enter your OpenWeatherMap API key. A free account at openweathermap.org provides the 5-day forecast used for atmospheric correction.",
-        "title": "Solcast Clear Sky"
-      }
-    }
-  },
-  "options": {
-    "step": {
-      "init": {
-        "data": {
-          "attr_brk_halfhourly": "Half-hourly detail",
-          "attr_brk_hourly": "Hourly detail",
-          "attr_brk_site": "By site"
+        "error": {
+            "auth": "Invalid OpenWeatherMap API key.",
+            "connection": "Unable to connect to OpenWeatherMap.",
+            "unknown": "An unexpected error occurred."
         },
-        "description": "Select which clear-sky estimate breakdowns are exposed as sensor attributes.",
-        "title": "Attribute breakdown"
-      }
+        "step": {
+            "user": {
+                "data": {
+                    "owm_api_key": "OpenWeatherMap API Key"
+                },
+                "description": "Enter your OpenWeatherMap API key. A free account at openweathermap.org provides the 5-day forecast used for atmospheric correction.",
+                "title": "Solcast Clear Sky"
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "attr_brk_halfhourly": "Half-hourly detail",
+                    "attr_brk_hourly": "Hourly detail",
+                    "attr_brk_site": "By site"
+                },
+                "description": "Select which clear-sky estimate breakdowns are exposed as sensor attributes.",
+                "title": "Attribute breakdown"
+            }
+        }
+    },
+    "services": {
+        "query_clear_sky_data": {
+            "description": "Return clear-sky estimate data for all sites or a specific site. The response includes start_date_time and end_date_time fields.",
+            "fields": {
+                "end_date_time": {
+                    "description": "Optional end datetime used to filter interval results.",
+                    "name": "End date/time"
+                },
+                "site": {
+                    "description": "Optional site id to filter the response to a single site.",
+                    "name": "Site"
+                },
+                "start_date_time": {
+                    "description": "Optional start datetime used to filter interval results.",
+                    "name": "Start date/time"
+                }
+            },
+            "name": "Query clear-sky estimate"
+        }
     }
-  }
 }

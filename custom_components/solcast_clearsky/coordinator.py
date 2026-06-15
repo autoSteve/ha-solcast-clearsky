@@ -165,8 +165,6 @@ class ClearSkyCoordinator(DataUpdateCoordinator):
         hourly: list[dict[str, str | float]] = []
         for i in range(0, len(intervals), 2):
             pair = intervals[i : i + 2]
-            if not pair:
-                continue
             avg_kw = round(sum(float(p["pv_clearsky"]) for p in pair) / len(pair), 3)
             hourly.append(
                 {

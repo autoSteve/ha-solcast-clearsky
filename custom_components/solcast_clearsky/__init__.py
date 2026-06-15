@@ -8,12 +8,23 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import voluptuous as vol
+
 from homeassistant.const import Platform
 from homeassistant.core import SupportsResponse
 from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers import config_validation as cv
 
 from .actions import ClearSkyServiceActions
-from .const import DOMAIN, LOGGER, SERVICE_QUERY_CLEAR_SKY_DATA, SOLCAST_SOLAR_DOMAIN
+from .const import (
+    DOMAIN,
+    END_DATE_TIME,
+    LOGGER,
+    SERVICE_QUERY_CLEAR_SKY_DATA,
+    SITE,
+    SOLCAST_SOLAR_DOMAIN,
+    START_DATE_TIME,
+)
 from .coordinator import ClearSkyCoordinator
 from .data import ClearSkyConfigEntry, ClearSkyData
 
@@ -21,6 +32,14 @@ if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
 
 PLATFORMS: list[Platform] = [Platform.SENSOR]
+
+SERVICE_QUERY_CLEAR_SKY_SCHEMA = vol.Schema(
+    {
+        vol.Optional(SITE): cv.string,
+        vol.Optional(START_DATE_TIME): cv.datetime,
+        vol.Optional(END_DATE_TIME): cv.datetime,
+    }
+)
 
 
 async def async_setup_entry(
@@ -40,6 +59,7 @@ async def async_setup_entry(
             DOMAIN,
             SERVICE_QUERY_CLEAR_SKY_DATA,
             service_actions.async_query_clear_sky_data,
+            schema=SERVICE_QUERY_CLEAR_SKY_SCHEMA,
             supports_response=SupportsResponse.ONLY,
         )
 

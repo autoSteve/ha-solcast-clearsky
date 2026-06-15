@@ -81,6 +81,7 @@ class ClearSkyCombinedSensor(ClearSkyEntity, SensorEntity):
     _attr_state_class = SensorStateClass.TOTAL
     _attr_suggested_display_precision = 2
     _attr_attribution = ATTRIBUTION
+    _unrecorded_attributes = frozenset({DETAILED_FORECAST, DETAILED_HOURLY})
 
     def __init__(
         self,

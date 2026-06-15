@@ -1,8 +1,18 @@
 # Describes the format for available services for solcast_clearsky
 query_clear_sky_data:
   name: Query clear sky data
-  description: Return clear-sky daily values for all sites or a single site.
+  description: Return clear-sky values for all sites or a single site. Response includes start_date_time and end_date_time range fields.
   fields:
     site:
       description: Optional Solcast site id. Use either hyphens or underscores.
       example: "1234-5678-9012-3456"
+    start_date_time:
+      description: Optional start datetime for filtering interval results.
+      example: "2026-06-15T00:00:00Z"
+      selector:
+        datetime:
+    end_date_time:
+      description: Optional end datetime for filtering interval results.
+      example: "2026-06-15T10:00:00Z"
+      selector:
+        datetime:

@@ -35,17 +35,21 @@ def _get_interpolated_atmos(target_time: datetime, atmos_timeline: dict[datetime
     if target_naive >= sorted_times[-1]:
         return atmos_timeline[sorted_times[-1]]
 
-    for i in range(len(sorted_times) - 1):
-        t1, t2 = sorted_times[i], sorted_times[i + 1]
-        if t1 <= target_naive <= t2:
-            fraction = (target_naive - t1).total_seconds() / (t2 - t1).total_seconds()
-            p1, p2 = atmos_timeline[t1], atmos_timeline[t2]
-            return {
-                "temp": p1["temp"] + fraction * (p2["temp"] - p1["temp"]),
-                "rh": p1["rh"] + fraction * (p2["rh"] - p1["rh"]),
-                "aod": p1["aod"] + fraction * (p2["aod"] - p1["aod"]),
-            }
-    return {"temp": 20.0, "rh": 50.0, "aod": 0.1}
+    lower_index = 0
+    for i, boundary in enumerate(sorted_times):
+        if boundary > target_naive:
+            lower_index = i - 1
+            break
+
+    t1 = sorted_times[lower_index]
+    t2 = sorted_times[lower_index + 1]
+    fraction = (target_naive - t1).total_seconds() / (t2 - t1).total_seconds()
+    p1, p2 = atmos_timeline[t1], atmos_timeline[t2]
+    return {
+        "temp": p1["temp"] + fraction * (p2["temp"] - p1["temp"]),
+        "rh": p1["rh"] + fraction * (p2["rh"] - p1["rh"]),
+        "aod": p1["aod"] + fraction * (p2["aod"] - p1["aod"]),
+    }
 
 
 def build_atmos_timeline(owm_data: dict[str, Any]) -> dict[datetime, dict[str, float]]:

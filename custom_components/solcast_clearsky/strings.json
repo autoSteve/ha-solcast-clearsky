@@ -31,5 +31,25 @@
                 }
             }
         }
+    },
+    "services": {
+        "query_clear_sky_data": {
+            "name": "Query clear-sky estimate",
+            "description": "Return clear-sky estimate data for all sites or a specific site. The response includes start_date_time and end_date_time fields.",
+            "fields": {
+                "site": {
+                    "name": "Site",
+                    "description": "Optional site id to filter the response to a single site."
+                },
+                "start_date_time": {
+                    "name": "Start date/time",
+                    "description": "Optional start datetime used to filter interval results."
+                },
+                "end_date_time": {
+                    "name": "End date/time",
+                    "description": "Optional end datetime used to filter interval results."
+                }
+            }
+        }
     }
 }

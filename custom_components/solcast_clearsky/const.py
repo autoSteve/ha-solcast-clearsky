@@ -11,6 +11,8 @@ ATTRIBUTION: Final[str] = "Clear-sky data computed using Bird Clear Sky Model wi
 
 CONF_OWM_API_KEY: Final[str] = "owm_api_key"
 SITE: Final[str] = "site"
+START_DATE_TIME: Final[str] = "start_date_time"
+END_DATE_TIME: Final[str] = "end_date_time"
 
 ATTR_BRK_HALFHOURY: Final[str] = "attr_brk_halfhourly"
 ATTR_BRK_HOURLY: Final[str] = "attr_brk_hourly"
