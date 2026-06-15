@@ -1,98 +1,129 @@
-"""Adds config flow for Blueprint."""
+"""Config flow for Solcast Clear Sky."""
 
 from __future__ import annotations
 
+import aiohttp
 import voluptuous as vol
+
 from homeassistant import config_entries
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
+from homeassistant.core import callback
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
-from homeassistant.loader import async_get_loaded_integration
-from slugify import slugify
 
-from .api import (
-    IntegrationBlueprintApiClient,
-    IntegrationBlueprintApiClientAuthenticationError,
-    IntegrationBlueprintApiClientCommunicationError,
-    IntegrationBlueprintApiClientError,
+from .const import (
+    ATTR_BRK_HALFHOURY,
+    ATTR_BRK_HOURLY,
+    ATTR_BRK_SITE,
+    CONF_OWM_API_KEY,
+    DEFAULT_ATTR_BRK_HALFHOURY,
+    DEFAULT_ATTR_BRK_HOURLY,
+    DEFAULT_ATTR_BRK_SITE,
+    DOMAIN,
+    LOGGER,
+    OWM_FORECAST_URL,
+    SOLCAST_SOLAR_DOMAIN,
 )
-from .const import DOMAIN, LOGGER
 
 
-class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
-    """Config flow for Blueprint."""
+class ClearSkyFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
+    """Config flow for Solcast Clear Sky."""
 
     VERSION = 1
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: config_entries.ConfigEntry) -> ClearSkyOptionsFlow:
+        """Get the options flow for this handler."""
+        return ClearSkyOptionsFlow(config_entry)
 
     async def async_step_user(
         self,
         user_input: dict | None = None,
     ) -> config_entries.ConfigFlowResult:
         """Handle a flow initialized by the user."""
-        _errors = {}
+        if not self.hass.config_entries.async_entries(SOLCAST_SOLAR_DOMAIN):
+            return self.async_abort(reason="solcast_solar_not_configured")
+
+        _errors: dict[str, str] = {}
         if user_input is not None:
             try:
-                await self._test_credentials(
-                    username=user_input[CONF_USERNAME],
-                    password=user_input[CONF_PASSWORD],
-                )
-            except IntegrationBlueprintApiClientAuthenticationError as exception:
-                LOGGER.warning(exception)
-                _errors["base"] = "auth"
-            except IntegrationBlueprintApiClientCommunicationError as exception:
-                LOGGER.error(exception)
+                await self._test_owm_key(user_input[CONF_OWM_API_KEY])
+            except aiohttp.ClientResponseError as exc:
+                if exc.status in (401, 403):
+                    _errors["base"] = "auth"
+                else:
+                    LOGGER.error("OWM API error: %s", exc)
+                    _errors["base"] = "connection"
+            except (aiohttp.ClientError, TimeoutError) as exc:
+                LOGGER.error("OWM connection error: %s", exc)
                 _errors["base"] = "connection"
-            except IntegrationBlueprintApiClientError as exception:
-                LOGGER.exception(exception)
+            except Exception:  # noqa: BLE001
+                LOGGER.exception("Unexpected error validating OWM API key")
                 _errors["base"] = "unknown"
             else:
-                await self.async_set_unique_id(
-                    ## Do NOT use this in production code
-                    ## The unique_id should never be something that can change
-                    ## https://developers.home-assistant.io/docs/config_entries_config_flow_handler#unique-ids
-                    unique_id=slugify(user_input[CONF_USERNAME])
-                )
+                await self.async_set_unique_id(DOMAIN)
                 self._abort_if_unique_id_configured()
                 return self.async_create_entry(
-                    title=user_input[CONF_USERNAME],
+                    title="Solcast Clear Sky",
                     data=user_input,
                 )
 
-        integration = async_get_loaded_integration(self.hass, DOMAIN)
-        assert integration.documentation is not None, (  # noqa: S101
-            "Integration documentation URL is not set in manifest.json"
-        )
-
         return self.async_show_form(
             step_id="user",
-            description_placeholders={
-                "documentation_url": integration.documentation,
-            },
             data_schema=vol.Schema(
                 {
                     vol.Required(
-                        CONF_USERNAME,
-                        default=(user_input or {}).get(CONF_USERNAME, vol.UNDEFINED),
+                        CONF_OWM_API_KEY,
+                        default=(user_input or {}).get(CONF_OWM_API_KEY, vol.UNDEFINED),
                     ): selector.TextSelector(
-                        selector.TextSelectorConfig(
-                            type=selector.TextSelectorType.TEXT,
-                        ),
-                    ),
-                    vol.Required(CONF_PASSWORD): selector.TextSelector(
                         selector.TextSelectorConfig(
                             type=selector.TextSelectorType.PASSWORD,
                         ),
                     ),
-                },
+                }
             ),
             errors=_errors,
         )
 
-    async def _test_credentials(self, username: str, password: str) -> None:
-        """Validate credentials."""
-        client = IntegrationBlueprintApiClient(
-            username=username,
-            password=password,
-            session=async_create_clientsession(self.hass),
+    async def _test_owm_key(self, api_key: str) -> None:
+        """Validate the OWM API key by making a test forecast request."""
+        session = async_create_clientsession(self.hass)
+        lat = self.hass.config.latitude
+        lon = self.hass.config.longitude
+        params = {"lat": lat, "lon": lon, "appid": api_key, "units": "metric", "cnt": 1}
+        async with session.get(OWM_FORECAST_URL, params=params, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+            resp.raise_for_status()
+
+
+class ClearSkyOptionsFlow(config_entries.OptionsFlow):
+    """Handle Solcast Clear Sky options."""
+
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+        """Initialize options flow."""
+        super().__init__()
+        self._config_entry = config_entry
+
+    async def async_step_init(self, user_input: dict[str, bool] | None = None) -> config_entries.ConfigFlowResult:
+        """Manage options."""
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(
+                {
+                    vol.Optional(
+                        ATTR_BRK_HALFHOURY,
+                        default=self._config_entry.options.get(ATTR_BRK_HALFHOURY, DEFAULT_ATTR_BRK_HALFHOURY),
+                    ): selector.BooleanSelector(),
+                    vol.Optional(
+                        ATTR_BRK_HOURLY,
+                        default=self._config_entry.options.get(ATTR_BRK_HOURLY, DEFAULT_ATTR_BRK_HOURLY),
+                    ): selector.BooleanSelector(),
+                    vol.Optional(
+                        ATTR_BRK_SITE,
+                        default=self._config_entry.options.get(ATTR_BRK_SITE, DEFAULT_ATTR_BRK_SITE),
+                    ): selector.BooleanSelector(),
+                }
+            ),
         )
-        await client.async_get_data()

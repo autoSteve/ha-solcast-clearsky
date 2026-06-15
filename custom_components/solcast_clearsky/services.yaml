@@ -1,0 +1,8 @@
+# Describes the format for available services for solcast_clearsky
+query_clear_sky_data:
+  name: Query clear sky data
+  description: Return clear-sky daily values for all sites or a single site.
+  fields:
+    site:
+      description: Optional Solcast site id. Use either hyphens or underscores.
+      example: "1234-5678-9012-3456"

@@ -1,28 +1,31 @@
-"""BlueprintEntity class."""
+"""Base entity for solcast_clearsky."""
 
 from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import ATTRIBUTION
-from .coordinator import BlueprintDataUpdateCoordinator
+from .const import DOMAIN
+from .coordinator import ClearSkyCoordinator
+
+if TYPE_CHECKING:
+    from homeassistant.config_entries import ConfigEntry
 
 
-class IntegrationBlueprintEntity(CoordinatorEntity[BlueprintDataUpdateCoordinator]):
-    """BlueprintEntity class."""
+class ClearSkyEntity(CoordinatorEntity[ClearSkyCoordinator]):
+    """Base class for Solcast Clear Sky entities."""
 
-    _attr_attribution = ATTRIBUTION
+    _attr_has_entity_name = True
 
-    def __init__(self, coordinator: BlueprintDataUpdateCoordinator) -> None:
-        """Initialize."""
+    def __init__(self, coordinator: ClearSkyCoordinator, entry: ConfigEntry) -> None:
+        """Initialise the entity."""
         super().__init__(coordinator)
-        self._attr_unique_id = coordinator.config_entry.entry_id
         self._attr_device_info = DeviceInfo(
-            identifiers={
-                (
-                    coordinator.config_entry.domain,
-                    coordinator.config_entry.entry_id,
-                ),
-            },
+            identifiers={(DOMAIN, entry.entry_id)},
+            name="Solcast Clear Sky",
+            manufacturer="Bird Clear Sky Model",
+            model="OpenWeatherMap atmospheric correction",
+            entry_type=None,
         )

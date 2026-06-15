@@ -1,4 +1,4 @@
-"""Custom types for integration_blueprint."""
+"""Custom types for solcast_clearsky."""
 
 from __future__ import annotations
 
@@ -7,19 +7,15 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
-    from homeassistant.loader import Integration
 
-    from .api import IntegrationBlueprintApiClient
-    from .coordinator import BlueprintDataUpdateCoordinator
+    from .coordinator import ClearSkyCoordinator
 
 
-type IntegrationBlueprintConfigEntry = ConfigEntry[IntegrationBlueprintData]
+type ClearSkyConfigEntry = ConfigEntry[ClearSkyData]
 
 
 @dataclass
-class IntegrationBlueprintData:
-    """Data for the Blueprint integration."""
+class ClearSkyData:
+    """Runtime data for the Solcast Clear Sky integration."""
 
-    client: IntegrationBlueprintApiClient
-    coordinator: BlueprintDataUpdateCoordinator
-    integration: Integration
+    coordinator: ClearSkyCoordinator

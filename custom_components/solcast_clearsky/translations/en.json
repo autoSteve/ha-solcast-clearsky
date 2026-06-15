@@ -2,20 +2,34 @@
     "config": {
         "step": {
             "user": {
-                "description": "If you need help with the configuration have a look here: {documentation_url}",
+                "title": "Solcast Clear Sky",
+                "description": "Enter your OpenWeatherMap API key. A free account at openweathermap.org provides the 5-day forecast used for atmospheric correction.",
                 "data": {
-                    "username": "Username",
-                    "password": "Password"
+                    "owm_api_key": "OpenWeatherMap API Key"
                 }
             }
         },
         "error": {
-            "auth": "Username/Password is wrong.",
-            "connection": "Unable to connect to the server.",
-            "unknown": "Unknown error occurred."
+            "auth": "Invalid OpenWeatherMap API key.",
+            "connection": "Unable to connect to OpenWeatherMap.",
+            "unknown": "An unexpected error occurred."
         },
         "abort": {
-            "already_configured": "This entry is already configured."
+            "already_configured": "Solcast Clear Sky is already configured.",
+            "solcast_solar_not_configured": "The solcast_solar integration must be configured first."
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Attribute breakdown",
+                "description": "Select which clear-sky estimate breakdowns are exposed as sensor attributes.",
+                "data": {
+                    "attr_brk_halfhourly": "Half-hourly detail",
+                    "attr_brk_hourly": "Hourly detail",
+                    "attr_brk_site": "By site"
+                }
+            }
         }
     }
 }

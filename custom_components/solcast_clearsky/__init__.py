@@ -1,78 +1,70 @@
-"""
-Custom integration to integrate integration_blueprint with Home Assistant.
+"""Solcast Clear Sky integration.
 
-For more details about this integration, please refer to
-https://github.com/ludeeus/integration_blueprint
+Companion integration for solcast_solar that computes weather-attenuated
+clear-sky PV forecasts using the Bird Clear Sky Model and OpenWeatherMap.
 """
 
 from __future__ import annotations
 
-from datetime import timedelta
 from typing import TYPE_CHECKING
 
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, Platform
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.loader import async_get_loaded_integration
+from homeassistant.const import Platform
+from homeassistant.core import SupportsResponse
+from homeassistant.exceptions import ConfigEntryNotReady
 
-from .api import IntegrationBlueprintApiClient
-from .const import DOMAIN, LOGGER
-from .coordinator import BlueprintDataUpdateCoordinator
-from .data import IntegrationBlueprintData
+from .actions import ClearSkyServiceActions
+from .const import DOMAIN, LOGGER, SERVICE_QUERY_CLEAR_SKY_DATA, SOLCAST_SOLAR_DOMAIN
+from .coordinator import ClearSkyCoordinator
+from .data import ClearSkyConfigEntry, ClearSkyData
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
 
-    from .data import IntegrationBlueprintConfigEntry
-
-PLATFORMS: list[Platform] = [
-    Platform.SENSOR,
-    Platform.BINARY_SENSOR,
-    Platform.SWITCH,
-]
+PLATFORMS: list[Platform] = [Platform.SENSOR]
 
 
-# https://developers.home-assistant.io/docs/config_entries_index/#setting-up-an-entry
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: IntegrationBlueprintConfigEntry,
+    entry: ClearSkyConfigEntry,
 ) -> bool:
-    """Set up this integration using UI."""
-    coordinator = BlueprintDataUpdateCoordinator(
-        hass=hass,
-        logger=LOGGER,
-        name=DOMAIN,
-        update_interval=timedelta(hours=1),
-    )
-    entry.runtime_data = IntegrationBlueprintData(
-        client=IntegrationBlueprintApiClient(
-            username=entry.data[CONF_USERNAME],
-            password=entry.data[CONF_PASSWORD],
-            session=async_get_clientsession(hass),
-        ),
-        integration=async_get_loaded_integration(hass, entry.domain),
-        coordinator=coordinator,
-    )
+    """Set up Solcast Clear Sky from a config entry."""
+    if not hass.config_entries.async_entries(SOLCAST_SOLAR_DOMAIN):
+        raise ConfigEntryNotReady("solcast_solar must be configured before solcast_clearsky can load")
 
-    # https://developers.home-assistant.io/docs/integration_fetching_data#coordinated-single-api-poll-for-data-for-all-entities
-    await coordinator.async_config_entry_first_refresh()
+    coordinator = ClearSkyCoordinator(hass, entry)
+    entry.runtime_data = ClearSkyData(coordinator=coordinator)
+
+    if not hass.services.has_service(DOMAIN, SERVICE_QUERY_CLEAR_SKY_DATA):
+        service_actions = ClearSkyServiceActions(hass)
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_QUERY_CLEAR_SKY_DATA,
+            service_actions.async_query_clear_sky_data,
+            supports_response=SupportsResponse.ONLY,
+        )
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
+    hass.async_create_task(coordinator.async_refresh())
 
+    LOGGER.debug("Solcast Clear Sky integration loaded")
     return True
 
 
 async def async_unload_entry(
     hass: HomeAssistant,
-    entry: IntegrationBlueprintConfigEntry,
+    entry: ClearSkyConfigEntry,
 ) -> bool:
     """Handle removal of an entry."""
-    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    if unload_ok and not hass.config_entries.async_entries(DOMAIN):
+        hass.services.async_remove(DOMAIN, SERVICE_QUERY_CLEAR_SKY_DATA)
+    return unload_ok
 
 
 async def async_reload_entry(
     hass: HomeAssistant,
-    entry: IntegrationBlueprintConfigEntry,
+    entry: ClearSkyConfigEntry,
 ) -> None:
     """Reload config entry."""
     await hass.config_entries.async_reload(entry.entry_id)
