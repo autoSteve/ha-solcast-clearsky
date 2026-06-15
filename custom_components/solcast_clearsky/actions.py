@@ -41,7 +41,7 @@ class ClearSkyServiceActions:
         LOGGER.debug("Action: %s", SERVICE_QUERY_CLEAR_SKY_DATA)
         coordinator = self._coordinator()
         if coordinator.data is None:
-            await coordinator.async_request_refresh()
+            coordinator.async_request_refresh()
 
         site = call.data.get(SITE)
         if site is None:

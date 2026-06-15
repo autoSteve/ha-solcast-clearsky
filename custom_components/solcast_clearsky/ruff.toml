@@ -1,0 +1,17 @@
+extend = "../../../.vscode/ruff-vscode.toml"
+
+[lint.extend-per-file-ignores]
+"*.py" = [
+    "D213",     # multi-line docstring placement — D212 style preferred
+    "EM101",    # exception string literals
+    "EM102",    # exception f-string literals
+    "TRY003",   # long exception messages outside exception class
+    "TC001",    # application imports in type-checking block
+    "TC002",    # third-party imports in type-checking block
+    "PLR2004",  # magic value comparisons
+    "PLR0913",  # too many function arguments
+    "DTZ004",   # datetime.utcfromtimestamp usage
+    "RUF003",   # ambiguous unicode in comments
+    "D413",     # missing blank line after docstring section
+    "ARG001",   # unused function argument
+]

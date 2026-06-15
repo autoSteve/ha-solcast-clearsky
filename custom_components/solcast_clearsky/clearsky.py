@@ -55,7 +55,7 @@ def build_atmos_timeline(owm_data: dict[str, Any]) -> dict[datetime, dict[str, f
     """
     timeline: dict[datetime, dict[str, float]] = {}
     for item in owm_data.get("list", []):
-        dt_utc = datetime.utcfromtimestamp(item["dt"])  # noqa: DTZ003 - intentionally naive UTC
+        dt_utc = datetime.utcfromtimestamp(item["dt"])
 
         temp_c = float(item["main"]["temp"])
         rh_pct = float(item["main"]["humidity"])
