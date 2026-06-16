@@ -106,6 +106,8 @@ Supports response data (`supports_response: only`) and returns combined or per-s
 - `start_date_time` (optional): datetime lower bound for interval filtering
 - `end_date_time` (optional): datetime upper bound for interval filtering
 
+Note that `start_date_time` and `end_date_time` influence the period of detailed responses. All available combined day values are returned regardless of the range specified.
+
 ### Combined example
 
 ```yaml
