@@ -85,8 +85,8 @@ Interval item format:
 
 ```json
 {
-	"period_start": "2026-06-16T09:00:00+00:00",
-	"pv_clearsky": 2.137
+    "period_start": "2026-06-16T09:00:00+00:00",
+    "pv_clearsky": 2.137
 }
 ```
 
@@ -111,8 +111,8 @@ Supports response data (`supports_response: only`) and returns combined or per-s
 ```yaml
 service: solcast_clearsky.query_clear_sky_data
 data:
-	start_date_time: "2026-06-16T00:00:00Z"
-	end_date_time: "2026-06-16T12:00:00Z"
+    start_date_time: "2026-06-16T00:00:00Z"
+    end_date_time: "2026-06-16T12:00:00Z"
 response_variable: clearsky
 ```
 
@@ -120,21 +120,21 @@ Response shape:
 
 ```json
 {
-	"data": {
-		"day_count": 2,
-		"combined": {
-			"0": 32.184,
-			"1": 28.931
-		},
-		"detailedForecast": [
-			{ "period_start": "2026-06-16T00:00:00+00:00", "pv_clearsky": 0.0 }
-		],
-		"detailedHourly": [
-			{ "period_start": "2026-06-16T00:00:00+00:00", "pv_clearsky": 0.0 }
-		],
-		"start_date_time": "2026-06-16T00:00:00+00:00",
-		"end_date_time": "2026-06-16T11:30:00+00:00"
-	}
+    "data": {
+        "day_count": 2,
+        "combined": {
+            "0": 32.184,
+            "1": 28.931
+        },
+        "detailedForecast": [
+            { "period_start": "2026-06-16T00:00:00+00:00", "pv_clearsky": 0.0 }
+        ],
+        "detailedHourly": [
+            { "period_start": "2026-06-16T00:00:00+00:00", "pv_clearsky": 0.0 }
+        ],
+        "start_date_time": "2026-06-16T00:00:00+00:00",
+        "end_date_time": "2026-06-16T11:30:00+00:00"
+    }
 }
 ```
 
@@ -143,7 +143,7 @@ Response shape:
 ```yaml
 service: solcast_clearsky.query_clear_sky_data
 data:
-	site: "1234-5678-9012-3456"
+    site: "1234-5678-9012-3456"
 response_variable: clearsky_site
 ```
 
