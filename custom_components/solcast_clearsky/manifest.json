@@ -1,10 +1,23 @@
 {
   "domain": "solcast_clearsky",
   "name": "Solcast Clear Sky",
-  "codeowners": [],
+  "after_dependencies": [
+    "http"
+  ],
+  "codeowners": [
+    "@autoSteve"
+  ],
   "config_flow": true,
+  "dependencies": [
+    "solcast_solar"
+  ],
   "documentation": "https://github.com/autoSteve/ha-solcast-clearsky",
+  "integration_type": "service",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/autoSteve/ha-solcast-clearsky/issues",
+  "requirements": [
+    "aiohttp>=3.8.5"
+  ],
+  "single_config_entry": true,
   "version": "0.3.0"
 }
