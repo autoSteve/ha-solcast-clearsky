@@ -8,9 +8,6 @@
     "@autoSteve"
   ],
   "config_flow": true,
-  "dependencies": [
-    "solcast_solar"
-  ],
   "documentation": "https://github.com/autoSteve/ha-solcast-clearsky",
   "integration_type": "service",
   "iot_class": "cloud_polling",

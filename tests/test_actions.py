@@ -249,6 +249,84 @@ async def test_service_query_invalid_start_end_range_raises(hass: HomeAssistant)
         )
 
 
+async def test_service_query_site_fallback_to_full_details_when_range_has_no_match(
+    hass: HomeAssistant,
+) -> None:
+    """Test site query falls back to full details when range has no overlap."""
+    entry = await _setup_loaded_entry(hass)
+    coordinator = entry.runtime_data.coordinator
+
+    halfhourly = [
+        {"period_start": "2026-06-16T00:00:00+10:00", "pv_clearsky": 0.4},
+        {"period_start": "2026-06-16T00:30:00+10:00", "pv_clearsky": 0.5},
+    ]
+
+    coordinator.data = {
+        "day_count": 1,
+        "combined": {0: 5.0},
+        DETAILED_FORECAST: {0: halfhourly},
+        DETAILED_HOURLY: {0: halfhourly},
+        "sites": [
+            {
+                "resource_id": "site-1",
+                "site_id": "site_1",
+                "name": "Site 1",
+                "forecasts": {0: 5.0},
+                DETAILED_FORECAST: {0: halfhourly},
+                DETAILED_HOURLY: {0: halfhourly},
+            }
+        ],
+    }
+
+    response = await hass.services.async_call(
+        DOMAIN,
+        SERVICE_QUERY_CLEAR_SKY_DATA,
+        {
+            SITE: "site_1",
+            START_DATE_TIME: "2026-06-15T00:00:00Z",
+            END_DATE_TIME: "2026-06-15T10:00:00Z",
+        },
+        blocking=True,
+        return_response=True,
+    )
+    assert isinstance(response, dict)
+    response_data = cast(dict[str, Any], response["data"])
+
+    assert response_data["site_id"] == "site_1"
+    assert response_data[DETAILED_FORECAST] == halfhourly
+    assert response_data[DETAILED_HOURLY] == halfhourly
+
+
+async def test_service_query_invalid_datetime_string_raises(hass: HomeAssistant) -> None:
+    """Test action raises on invalid datetime string when called directly."""
+    await _setup_loaded_entry(hass)
+    actions = ClearSkyServiceActions(hass)
+    service_call = cast(ServiceCall, SimpleNamespace(data={START_DATE_TIME: "not-a-datetime"}))
+
+    with pytest.raises(ServiceValidationError, match="Invalid datetime"):
+        await actions.async_query_clear_sky_data(service_call)
+
+
+def test_filter_intervals_skips_invalid_period_start_values() -> None:
+    """Test filter helper ignores non-string and unparsable period_start entries."""
+    intervals: list[dict[str, str | float]] = [
+        {"period_start": cast(str, 123), "pv_clearsky": 0.1},
+        {"period_start": "invalid", "pv_clearsky": 0.2},
+        {"period_start": "2026-06-15T00:00:00+00:00", "pv_clearsky": 0.3},
+    ]
+
+    filtered = ClearSkyServiceActions._filter_intervals(intervals, None, None)
+
+    assert filtered == [{"period_start": "2026-06-15T00:00:00+00:00", "pv_clearsky": 0.3}]
+
+
+def test_normalise_datetime_value_accepts_valid_string() -> None:
+    """Test helper parses valid datetime strings."""
+    parsed = ClearSkyServiceActions._normalise_datetime_value("2026-06-15T00:00:00+00:00", START_DATE_TIME)
+
+    assert parsed is not None
+
+
 async def test_service_errors_when_integration_not_loaded(hass: HomeAssistant) -> None:
     """Test service raises when no clear-sky entry exists."""
     actions = ClearSkyServiceActions(hass)

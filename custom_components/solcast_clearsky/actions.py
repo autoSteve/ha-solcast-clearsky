@@ -29,7 +29,7 @@ class ClearSkyServiceActions:
     """Service actions for Solcast Clear Sky."""
 
     def __init__(self, hass: HomeAssistant) -> None:
-        """Initialize the service helper."""
+        """Initialise the service helper."""
         self._hass = hass
 
     def _coordinator(self) -> ClearSkyCoordinator:
@@ -44,8 +44,8 @@ class ClearSkyServiceActions:
         return runtime_data.coordinator
 
     @staticmethod
-    def _normalize_site_id(site_id: str) -> str:
-        """Normalize a site id using the solcast_solar convention."""
+    def _normalise_site_id(site_id: str) -> str:
+        """Normalise a site id using the solcast_solar convention."""
         return site_id.lower().replace("_", "-")
 
     @staticmethod
@@ -68,7 +68,7 @@ class ClearSkyServiceActions:
         return (start if isinstance(start, str) else None, end if isinstance(end, str) else None)
 
     @staticmethod
-    def _normalize_datetime_value(value: datetime | str | None, field_name: str) -> datetime | None:
+    def _normalise_datetime_value(value: datetime | str | None, field_name: str) -> datetime | None:
         """Return a UTC datetime for service query bounds."""
         if value is None:
             return None
@@ -112,8 +112,8 @@ class ClearSkyServiceActions:
         if coordinator.data is None:
             await cast(Awaitable[None], coordinator.async_refresh())
 
-        query_start_date_time = self._normalize_datetime_value(call.data.get(START_DATE_TIME), START_DATE_TIME)
-        query_end_date_time = self._normalize_datetime_value(call.data.get(END_DATE_TIME), END_DATE_TIME)
+        query_start_date_time = self._normalise_datetime_value(call.data.get(START_DATE_TIME), START_DATE_TIME)
+        query_end_date_time = self._normalise_datetime_value(call.data.get(END_DATE_TIME), END_DATE_TIME)
         if query_start_date_time is not None and query_end_date_time is not None and query_end_date_time < query_start_date_time:
             raise ServiceValidationError(f"{END_DATE_TIME} must be on or after {START_DATE_TIME}")
 
@@ -151,7 +151,7 @@ class ClearSkyServiceActions:
                 }
             }
 
-        requested_site = self._normalize_site_id(site)
+        requested_site = self._normalise_site_id(site)
         for site_data in coordinator.sites:
             if site_data["resource_id"] == requested_site:
                 full_detailed_forecast = self._collapse_daily_breakdown(site_data.get(DETAILED_FORECAST, {}))
