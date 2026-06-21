@@ -206,7 +206,7 @@ class ClearSkyCoordinator(DataUpdateCoordinator):
                         "site_id": self.normalize_site_id(resource_id),
                         "name": site.get(_NAME, resource_id),
                         "tilt": float(site.get(_TILT) or 0),
-                        "azimuth": float(site.get(_AZIMUTH) or 180),
+                        "azimuth": (-float(site.get(_AZIMUTH))) % 360.0,
                         "capacity_kw": float(site.get(_CAPACITY) or 0),
                         "efficiency": float(site.get(_LOSS_FACTOR) or DEFAULT_SYSTEM_EFFICIENCY),
                         "lat": float(lat) if lat is not None else ha_latitude,
