@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 import math
 from typing import TYPE_CHECKING, Any
 
-from astral.sun import azimuth, elevation
+from astral.sun import azimuth as astral_azimuth, elevation as astral_elevation
 
 if TYPE_CHECKING:
     from astral.observer import Observer
@@ -112,8 +112,8 @@ def compute_site_clearsky(
 
         day_of_year = midpoint.timetuple().tm_yday
 
-        solar_elevation_val = elevation(astral_observer, midpoint)
-        solar_azimuth_val = azimuth(astral_observer, midpoint)
+        solar_elevation_val = astral_elevation(astral_observer, midpoint)
+        solar_azimuth_val = astral_azimuth(astral_observer, midpoint)
 
         elev_rad = math.radians(solar_elevation_val)
         az_rad = math.radians(solar_azimuth_val)

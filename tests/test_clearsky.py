@@ -62,8 +62,8 @@ async def test_build_atmos_timeline_parses_weather_id() -> None:
     assert values[1]["aod"] == 0.1
 
 
-@patch("homeassistant.components.solcast_clearsky.clearsky.elevation", return_value=-5.0)
-@patch("homeassistant.components.solcast_clearsky.clearsky.azimuth", return_value=120.0)
+@patch("homeassistant.components.solcast_clearsky.clearsky.astral_elevation", return_value=-5.0)
+@patch("homeassistant.components.solcast_clearsky.clearsky.astral_azimuth", return_value=120.0)
 async def test_compute_site_clearsky_night_path(mock_az, mock_el) -> None:
     """Test clear-sky computation when sun is below horizon."""
     daily, halfhourly = compute_site_clearsky(
@@ -83,8 +83,8 @@ async def test_compute_site_clearsky_night_path(mock_az, mock_el) -> None:
     assert all(interval["pv_clearsky"] == 0.0 for interval in halfhourly[0])
 
 
-@patch("homeassistant.components.solcast_clearsky.clearsky.elevation", return_value=45.0)
-@patch("homeassistant.components.solcast_clearsky.clearsky.azimuth", return_value=180.0)
+@patch("homeassistant.components.solcast_clearsky.clearsky.astral_elevation", return_value=45.0)
+@patch("homeassistant.components.solcast_clearsky.clearsky.astral_azimuth", return_value=180.0)
 async def test_compute_site_clearsky_day_path(mock_az, mock_el) -> None:
     """Test clear-sky computation when sun is above horizon."""
     timeline = {
@@ -109,8 +109,8 @@ async def test_compute_site_clearsky_day_path(mock_az, mock_el) -> None:
     assert cast(float, halfhourly[0][0]["pv_clearsky"]) >= 0
 
 
-@patch("homeassistant.components.solcast_clearsky.clearsky.elevation", return_value=45.0)
-@patch("homeassistant.components.solcast_clearsky.clearsky.azimuth", return_value=180.0)
+@patch("homeassistant.components.solcast_clearsky.clearsky.astral_elevation", return_value=45.0)
+@patch("homeassistant.components.solcast_clearsky.clearsky.astral_azimuth", return_value=180.0)
 async def test_compute_site_clearsky_late_start_skips_out_of_range_day(mock_az, mock_el) -> None:
     """Test intervals beyond requested day window are skipped."""
     daily, halfhourly = compute_site_clearsky(
