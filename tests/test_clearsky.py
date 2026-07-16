@@ -11,20 +11,7 @@ from homeassistant.components.solcast_clearsky.clearsky import (
 )
 
 
-class _FakeLocation:
-    """Simple fake astral location."""
-
-    def __init__(self, elevation: float, azimuth: float) -> None:
-        self._elevation = elevation
-        self._azimuth = azimuth
-
-    def solar_elevation(self, _: datetime) -> float:
-        """Return a fixed solar elevation."""
-        return self._elevation
-
-    def solar_azimuth(self, _: datetime) -> float:
-        """Return a fixed solar azimuth."""
-        return self._azimuth
+from unittest.mock import patch
 
 
 async def test_calculate_ozone_clamped() -> None:
@@ -75,10 +62,12 @@ async def test_build_atmos_timeline_parses_weather_id() -> None:
     assert values[1]["aod"] == 0.1
 
 
-async def test_compute_site_clearsky_night_path() -> None:
+@patch("homeassistant.components.solcast_clearsky.clearsky.elevation", return_value=-5.0)
+@patch("homeassistant.components.solcast_clearsky.clearsky.azimuth", return_value=120.0)
+async def test_compute_site_clearsky_night_path(mock_az, mock_el) -> None:
     """Test clear-sky computation when sun is below horizon."""
     daily, halfhourly = compute_site_clearsky(
-        astral_location=cast(Any, _FakeLocation(elevation=-5.0, azimuth=120.0)),
+        astral_observer=cast(Any, object()),
         atmos_timeline={},
         start_time=datetime(2026, 6, 15, 0, 0, 0),
         days=1,
@@ -94,7 +83,9 @@ async def test_compute_site_clearsky_night_path() -> None:
     assert all(interval["pv_clearsky"] == 0.0 for interval in halfhourly[0])
 
 
-async def test_compute_site_clearsky_day_path() -> None:
+@patch("homeassistant.components.solcast_clearsky.clearsky.elevation", return_value=45.0)
+@patch("homeassistant.components.solcast_clearsky.clearsky.azimuth", return_value=180.0)
+async def test_compute_site_clearsky_day_path(mock_az, mock_el) -> None:
     """Test clear-sky computation when sun is above horizon."""
     timeline = {
         datetime(2026, 6, 15, 0, 0, 0): {"temp": 20.0, "rh": 0.0, "aod": 0.1},
@@ -102,7 +93,7 @@ async def test_compute_site_clearsky_day_path() -> None:
     }
 
     daily, halfhourly = compute_site_clearsky(
-        astral_location=cast(Any, _FakeLocation(elevation=45.0, azimuth=180.0)),
+        astral_observer=cast(Any, object()),
         atmos_timeline=timeline,
         start_time=datetime(2026, 6, 15, 0, 0, 0),
         days=1,
@@ -118,10 +109,12 @@ async def test_compute_site_clearsky_day_path() -> None:
     assert cast(float, halfhourly[0][0]["pv_clearsky"]) >= 0
 
 
-async def test_compute_site_clearsky_late_start_skips_out_of_range_day() -> None:
+@patch("homeassistant.components.solcast_clearsky.clearsky.elevation", return_value=45.0)
+@patch("homeassistant.components.solcast_clearsky.clearsky.azimuth", return_value=180.0)
+async def test_compute_site_clearsky_late_start_skips_out_of_range_day(mock_az, mock_el) -> None:
     """Test intervals beyond requested day window are skipped."""
     daily, halfhourly = compute_site_clearsky(
-        astral_location=cast(Any, _FakeLocation(elevation=45.0, azimuth=180.0)),
+        astral_observer=cast(Any, object()),
         atmos_timeline={},
         start_time=datetime(2026, 6, 15, 23, 30, 0),
         days=1,

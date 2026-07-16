@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any
 import aiohttp
 
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.sun import get_astral_location
+from homeassistant.helpers.sun import get_astral_observer
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
 
@@ -267,7 +267,7 @@ class ClearSkyCoordinator(DataUpdateCoordinator):
 
         atmos_timeline = build_atmos_timeline(owm_data)
 
-        astral_location, _ = get_astral_location(self.hass)
+        astral_observer = get_astral_observer(self.hass)
 
         now_local = dt_util.now()
         today_start = now_local.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -281,7 +281,7 @@ class ClearSkyCoordinator(DataUpdateCoordinator):
                 continue
 
             daily, halfhourly = compute_site_clearsky(
-                astral_location=astral_location,
+                astral_observer=astral_observer,
                 atmos_timeline=atmos_timeline,
                 start_time=today_start,
                 days=day_count,

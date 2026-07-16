@@ -10,8 +10,10 @@ from datetime import datetime, timedelta
 import math
 from typing import TYPE_CHECKING, Any
 
+from astral.sun import azimuth, elevation
+
 if TYPE_CHECKING:
-    from astral.location import Location
+    from astral.observer import Observer
 
 
 def _calculate_ozone(lat: float, day_of_year: int) -> float:
@@ -74,7 +76,7 @@ def build_atmos_timeline(owm_data: dict[str, Any]) -> dict[datetime, dict[str, f
 
 
 def compute_site_clearsky(
-    astral_location: Location,
+    astral_observer: Observer,
     atmos_timeline: dict[datetime, dict[str, float]],
     start_time: datetime,
     days: int,
@@ -110,11 +112,11 @@ def compute_site_clearsky(
 
         day_of_year = midpoint.timetuple().tm_yday
 
-        solar_elevation = astral_location.solar_elevation(midpoint)
-        solar_azimuth = astral_location.solar_azimuth(midpoint)
+        solar_elevation_val = elevation(astral_observer, midpoint)
+        solar_azimuth_val = azimuth(astral_observer, midpoint)
 
-        elev_rad = math.radians(solar_elevation)
-        az_rad = math.radians(solar_azimuth)
+        elev_rad = math.radians(solar_elevation_val)
+        az_rad = math.radians(solar_azimuth_val)
 
         if elev_rad <= 0:
             halfhourly[day_index].append(
@@ -130,7 +132,7 @@ def compute_site_clearsky(
         cos_zenith = math.cos(zenith_rad)
 
         # Kasten-Young relative air mass
-        air_mass = 1.0 / (cos_zenith + 0.15 * ((solar_elevation + 3.885) ** -1.253))
+        air_mass = 1.0 / (cos_zenith + 0.15 * ((solar_elevation_val + 3.885) ** -1.253))
 
         atmos = _get_interpolated_atmos(midpoint, atmos_timeline)
 
