@@ -97,8 +97,8 @@ async def test_async_update_data_with_sites(hass: HomeAssistant) -> None:
             return_value={},
         ),
         patch(
-            "homeassistant.components.solcast_clearsky.coordinator.get_astral_location",
-            return_value=(SimpleNamespace(), None),
+            "homeassistant.components.solcast_clearsky.coordinator.get_astral_observer",
+            return_value=SimpleNamespace(),
         ),
         patch(
             "homeassistant.components.solcast_clearsky.coordinator.compute_site_clearsky",
@@ -331,8 +331,8 @@ async def test_async_update_data_skips_zero_capacity_and_merges_sites(
             return_value={},
         ),
         patch(
-            "homeassistant.components.solcast_clearsky.coordinator.get_astral_location",
-            return_value=(SimpleNamespace(), None),
+            "homeassistant.components.solcast_clearsky.coordinator.get_astral_observer",
+            return_value=SimpleNamespace(),
         ),
         patch(
             "homeassistant.components.solcast_clearsky.coordinator.compute_site_clearsky",
