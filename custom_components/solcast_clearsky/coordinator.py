@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Any
 import aiohttp
 
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.sun import get_astral_location
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
 
@@ -47,6 +46,39 @@ _SITE_ATTRIBUTE_LATITUDE = "latitude"
 
 UPDATE_INTERVAL = timedelta(hours=1)
 RETRY_INTERVAL_NO_SITES = timedelta(seconds=RETRY_INTERVAL_NO_SITES_SECONDS)
+
+try:
+    from astral.sun import azimuth as _astral_azimuth, elevation as _astral_elevation
+
+    from homeassistant.helpers.sun import get_astral_observer
+
+    _USE_ASTRAL_OBSERVER = True
+except ImportError:  # pragma: no cover
+    from homeassistant.helpers.sun import get_astral_location
+
+    _USE_ASTRAL_OBSERVER = False
+
+    def _astral_elevation(loc: Any, ts: Any) -> float:
+        return float(loc.solar_elevation(ts))
+
+    def _astral_azimuth(loc: Any, ts: Any) -> float:
+        return float(loc.solar_azimuth(ts))
+
+
+class _AstralGeometry:
+    """Provide a location-like API across Astral helper variants."""
+
+    def __init__(self, observer_or_location: Any) -> None:
+        """Store the astral observer or legacy location object."""
+        self._observer_or_location = observer_or_location
+
+    def solar_elevation(self, ts: Any, *_: Any) -> float:
+        """Return solar elevation for a timestamp."""
+        return float(_astral_elevation(self._observer_or_location, ts))
+
+    def solar_azimuth(self, ts: Any, *_: Any) -> float:
+        """Return solar azimuth for a timestamp."""
+        return float(_astral_azimuth(self._observer_or_location, ts))
 
 
 class ClearSkyCoordinator(DataUpdateCoordinator):
@@ -267,7 +299,7 @@ class ClearSkyCoordinator(DataUpdateCoordinator):
 
         atmos_timeline = build_atmos_timeline(owm_data)
 
-        astral_location, _ = get_astral_location(self.hass)
+        astral_location = _AstralGeometry(get_astral_observer(self.hass) if _USE_ASTRAL_OBSERVER else get_astral_location(self.hass)[0])
 
         now_local = dt_util.now()
         today_start = now_local.replace(hour=0, minute=0, second=0, microsecond=0)
