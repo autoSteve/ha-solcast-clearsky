@@ -68,7 +68,7 @@ jobs:
         working-directory: core
         run: python -m script.translations develop --all
 
-      - name: Run the whole suite with coverage
+      - name: Run the suite
         working-directory: core
         run: >-
           python -m pytest tests/components/solcast_clearsky

@@ -170,7 +170,7 @@ def compute_site_clearsky(
         )
         poa = (dni * cos_aoi) + (dhi * ((1.0 + math.cos(tilt_rad)) / 2.0))
 
-        # Convert irradiance - power for this 30-minute slot (kWh = kW * 0.5 h)
+        # Convert irradiance -> power for this 30-minute slot (kWh = kW x 0.5 h)
         pv_kw = max(0.0, (poa / 1000.0) * capacity_kw * efficiency)
         interval_kwh = pv_kw * 0.5  # 30-min slot
         daily_kwh[day_index] = daily_kwh[day_index] + interval_kwh
