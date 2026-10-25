@@ -54,4 +54,11 @@ jobs:
 
       - name: Run pytest
         run: |
-          pytest tests/
+      - name: Compile translations
+        working-directory: core
+        run: python -m script.translations develop --all
+
+      - name: Run the whole suite with coverage
+        working-directory: core
+        run: >-
+          python -m pytest tests/components/solcast_clearsky
