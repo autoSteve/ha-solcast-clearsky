@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Any, cast
 
-from homeassistant.components.solcast_clearsky.clearsky import (
+from custom_components.solcast_clearsky.clearsky import (
     _calculate_ozone,
     _get_interpolated_atmos,
     build_atmos_timeline,

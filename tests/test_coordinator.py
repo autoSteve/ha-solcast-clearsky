@@ -6,19 +6,19 @@ from typing import Self
 from unittest.mock import AsyncMock, patch
 
 import aiohttp
-import pytest
-
-from homeassistant.components.solcast_clearsky.const import (
+from custom_components.solcast_clearsky.const import (
     CONF_OWM_API_KEY,
     DETAILED_FORECAST,
     DETAILED_HOURLY,
     SOLCAST_SOLAR_DOMAIN,
 )
-from homeassistant.components.solcast_clearsky.coordinator import (
+from custom_components.solcast_clearsky.coordinator import (
     RETRY_INTERVAL_NO_SITES,
     UPDATE_INTERVAL,
     ClearSkyCoordinator,
 )
+import pytest
+
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import UpdateFailed
 
@@ -93,19 +93,19 @@ async def test_async_update_data_with_sites(hass: HomeAssistant) -> None:
     with (
         patch.object(coordinator, "_fetch_owm", AsyncMock(return_value={"list": []})),
         patch(
-            "homeassistant.components.solcast_clearsky.coordinator.build_atmos_timeline",
+            "custom_components.solcast_clearsky.coordinator.build_atmos_timeline",
             return_value={},
         ),
         patch(
-            "homeassistant.components.solcast_clearsky.coordinator.get_astral_observer",
+            "custom_components.solcast_clearsky.coordinator.get_astral_observer",
             return_value=SimpleNamespace(),
         ),
         patch(
-            "homeassistant.components.solcast_clearsky.coordinator.compute_site_clearsky",
+            "custom_components.solcast_clearsky.coordinator.compute_site_clearsky",
             return_value=(daily, halfhourly),
         ),
         patch(
-            "homeassistant.components.solcast_clearsky.coordinator.dt_util.now",
+            "custom_components.solcast_clearsky.coordinator.dt_util.now",
             return_value=datetime(2026, 6, 15, 12, 0, 0),
         ),
     ):
@@ -196,7 +196,7 @@ async def test_fetch_owm_auth_failure(hass: HomeAssistant) -> None:
 
     with (
         patch(
-            "homeassistant.components.solcast_clearsky.coordinator.async_get_clientsession",
+            "custom_components.solcast_clearsky.coordinator.async_get_clientsession",
             return_value=_Session(),
         ),
         pytest.raises(UpdateFailed, match="authentication failed"),
@@ -264,7 +264,7 @@ async def test_fetch_owm_success(hass: HomeAssistant) -> None:
             return _Resp()
 
     with patch(
-        "homeassistant.components.solcast_clearsky.coordinator.async_get_clientsession",
+        "custom_components.solcast_clearsky.coordinator.async_get_clientsession",
         return_value=_Session(),
     ):
         result = await coordinator._fetch_owm()
@@ -327,19 +327,19 @@ async def test_async_update_data_skips_zero_capacity_and_merges_sites(
         patch.object(coordinator, "_collect_solcast_sites", return_value=(sites_config, 1)),
         patch.object(coordinator, "_fetch_owm", AsyncMock(return_value={"list": []})),
         patch(
-            "homeassistant.components.solcast_clearsky.coordinator.build_atmos_timeline",
+            "custom_components.solcast_clearsky.coordinator.build_atmos_timeline",
             return_value={},
         ),
         patch(
-            "homeassistant.components.solcast_clearsky.coordinator.get_astral_observer",
+            "custom_components.solcast_clearsky.coordinator.get_astral_observer",
             return_value=SimpleNamespace(),
         ),
         patch(
-            "homeassistant.components.solcast_clearsky.coordinator.compute_site_clearsky",
+            "custom_components.solcast_clearsky.coordinator.compute_site_clearsky",
             side_effect=results,
         ),
         patch(
-            "homeassistant.components.solcast_clearsky.coordinator.dt_util.now",
+            "custom_components.solcast_clearsky.coordinator.dt_util.now",
             return_value=datetime(2026, 6, 15, 12, 0, 0),
         ),
     ):

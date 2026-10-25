@@ -4,10 +4,8 @@ from types import SimpleNamespace
 from typing import Any, cast
 from unittest.mock import AsyncMock, patch
 
-import pytest
-
-from homeassistant.components.solcast_clearsky.actions import ClearSkyServiceActions
-from homeassistant.components.solcast_clearsky.const import (
+from custom_components.solcast_clearsky.actions import ClearSkyServiceActions
+from custom_components.solcast_clearsky.const import (
     CONF_OWM_API_KEY,
     DETAILED_FORECAST,
     DETAILED_HOURLY,
@@ -18,6 +16,8 @@ from homeassistant.components.solcast_clearsky.const import (
     SOLCAST_SOLAR_DOMAIN,
     START_DATE_TIME,
 )
+import pytest
+
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ServiceValidationError
 
@@ -33,7 +33,7 @@ async def _setup_loaded_entry(hass: HomeAssistant) -> MockConfigEntry:
     entry.add_to_hass(hass)
 
     with patch(
-        "homeassistant.components.solcast_clearsky.coordinator.ClearSkyCoordinator.async_refresh",
+        "custom_components.solcast_clearsky.coordinator.ClearSkyCoordinator.async_refresh",
         new=AsyncMock(),
     ):
         await hass.config_entries.async_setup(entry.entry_id)
