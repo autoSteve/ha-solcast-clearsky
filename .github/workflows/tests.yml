@@ -22,10 +22,24 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest pytest-homeassistant-custom-component
+          pip install pytest
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Mount the integration into Core
+        run: |
+          rm -rf core/custom_components/solcast_clearsky core/tests/components/solcast_clearsky
+          mkdir -p core/custom_components
+          cp -a integration/custom_components/solcast_clearsky core/custom_components/solcast_clearsky
+          cp -a integration/tests core/tests/components/solcast_clearsky
+
+      - name: Point the test helper imports at Core's package
+        run: |
+          # Core dev moved tests/common.py and the other test helpers into the package pytest_homeassistant.
+          [ -d core/packages/pytest-home-assistant ] || exit 0
+          modules="common|typing|ignore_uncaught_exceptions|components\.diagnostics|components\.recorder\.common"
+          grep -rlE "from tests\.($modules) import" core/tests/components/solcast_* \
+            | xargs -r sed -i -E "s/from tests\.($modules) import/from pytest_homeassistant.\1 import/"
 
       - name: Run pytest
         run: |
-          PYTHONPATH=. pytest tests/
           pytest tests/
