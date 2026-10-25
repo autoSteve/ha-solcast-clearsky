@@ -4,8 +4,6 @@ from types import SimpleNamespace
 from typing import Any, cast
 from unittest.mock import AsyncMock, patch
 
-import pytest
-
 from custom_components.solcast_clearsky.actions import ClearSkyServiceActions
 from custom_components.solcast_clearsky.const import (
     CONF_OWM_API_KEY,
@@ -18,6 +16,8 @@ from custom_components.solcast_clearsky.const import (
     SOLCAST_SOLAR_DOMAIN,
     START_DATE_TIME,
 )
+import pytest
+
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ServiceValidationError
 

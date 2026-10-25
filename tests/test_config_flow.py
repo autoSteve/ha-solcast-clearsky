@@ -4,8 +4,6 @@ from typing import Any, Self, cast
 from unittest.mock import AsyncMock, Mock, patch
 
 import aiohttp
-import pytest
-
 from custom_components.solcast_clearsky.config_flow import ClearSkyFlowHandler
 from custom_components.solcast_clearsky.const import (
     ATTR_BRK_HALFHOURY,
@@ -14,6 +12,8 @@ from custom_components.solcast_clearsky.const import (
     CONF_OWM_API_KEY,
     DOMAIN,
 )
+import pytest
+
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 

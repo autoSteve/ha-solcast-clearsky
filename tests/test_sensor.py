@@ -12,6 +12,7 @@ from custom_components.solcast_clearsky.const import (
     DOMAIN,
     SOLCAST_SOLAR_DOMAIN,
 )
+
 from homeassistant.core import HomeAssistant
 
 from tests.common import MockConfigEntry

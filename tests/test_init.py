@@ -12,6 +12,7 @@ from custom_components.solcast_clearsky.const import (
     SERVICE_QUERY_CLEAR_SKY_DATA,
     SOLCAST_SOLAR_DOMAIN,
 )
+
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 

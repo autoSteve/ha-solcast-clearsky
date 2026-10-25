@@ -6,8 +6,6 @@ from typing import Self
 from unittest.mock import AsyncMock, patch
 
 import aiohttp
-import pytest
-
 from custom_components.solcast_clearsky.const import (
     CONF_OWM_API_KEY,
     DETAILED_FORECAST,
@@ -19,6 +17,8 @@ from custom_components.solcast_clearsky.coordinator import (
     UPDATE_INTERVAL,
     ClearSkyCoordinator,
 )
+import pytest
+
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import UpdateFailed
 
