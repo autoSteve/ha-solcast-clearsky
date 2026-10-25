@@ -6,8 +6,8 @@ from unittest.mock import AsyncMock, Mock, patch
 import aiohttp
 import pytest
 
-from homeassistant.components.solcast_clearsky.config_flow import ClearSkyFlowHandler
-from homeassistant.components.solcast_clearsky.const import (
+from custom_components.solcast_clearsky.config_flow import ClearSkyFlowHandler
+from custom_components.solcast_clearsky.const import (
     ATTR_BRK_HALFHOURY,
     ATTR_BRK_HOURLY,
     ATTR_BRK_SITE,
@@ -61,7 +61,7 @@ async def test_user_flow_creates_entry(
     assert result_data["type"] is FlowResultType.FORM
 
     with patch(
-        "homeassistant.components.solcast_clearsky.config_flow.ClearSkyFlowHandler._test_owm_key",
+        "custom_components.solcast_clearsky.config_flow.ClearSkyFlowHandler._test_owm_key",
         new=AsyncMock(),
     ) as mock_test_key:
         result = await hass.config_entries.flow.async_configure(
@@ -152,7 +152,7 @@ async def test_user_flow_validation_errors(
     result_data = cast(dict[str, Any], result)
 
     with patch(
-        "homeassistant.components.solcast_clearsky.config_flow.ClearSkyFlowHandler._test_owm_key",
+        "custom_components.solcast_clearsky.config_flow.ClearSkyFlowHandler._test_owm_key",
         new=AsyncMock(side_effect=error),
     ):
         result = await hass.config_entries.flow.async_configure(
@@ -178,7 +178,7 @@ async def test_test_owm_key_calls_raise_for_status(
     mock_session.get.return_value = mock_response
 
     with patch(
-        "homeassistant.components.solcast_clearsky.config_flow.async_create_clientsession",
+        "custom_components.solcast_clearsky.config_flow.async_create_clientsession",
         return_value=mock_session,
     ):
         await handler._test_owm_key("test-key")

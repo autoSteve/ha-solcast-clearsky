@@ -6,7 +6,7 @@ using OpenWeatherMap atmospheric data for AOD/humidity/temperature correction.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 import math
 from typing import TYPE_CHECKING, Any
 
@@ -59,7 +59,7 @@ def build_atmos_timeline(owm_data: dict[str, Any]) -> dict[datetime, dict[str, f
     """
     timeline: dict[datetime, dict[str, float]] = {}
     for item in owm_data.get("list", []):
-        dt_utc = datetime.utcfromtimestamp(item["dt"])
+        dt_utc = datetime.fromtimestamp(item["dt"], UTC)
 
         temp_c = float(item["main"]["temp"])
         rh_pct = float(item["main"]["humidity"])
@@ -170,7 +170,7 @@ def compute_site_clearsky(
         )
         poa = (dni * cos_aoi) + (dhi * ((1.0 + math.cos(tilt_rad)) / 2.0))
 
-        # Convert irradiance → power for this 30-minute slot (kWh = kW × 0.5 h)
+        # Convert irradiance - power for this 30-minute slot (kWh = kW * 0.5 h)
         pv_kw = max(0.0, (poa / 1000.0) * capacity_kw * efficiency)
         interval_kwh = pv_kw * 0.5  # 30-min slot
         daily_kwh[day_index] = daily_kwh[day_index] + interval_kwh
