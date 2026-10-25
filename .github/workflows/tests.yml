@@ -31,11 +31,19 @@ jobs:
 
           cache: "pip"
 
-      - name: Install dependencies
+      - name: Install Core test requirements
+        working-directory: core
         run: |
-          python -m pip install --upgrade pip
-          pip install pytest
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          python -m pip install uv
+          extra=$(grep -E "^(SQLAlchemy|fnv-hash-fast|psutil-home-assistant|paho-mqtt|aiohasupervisor)==" requirements_all.txt)
+          reqs=$(python -c 'import json; print(" ".join(json.load(open("../integration/custom_components/solcast_clearsky/manifest.json"))["requirements"]))')
+          # Core dev ships its test helpers as the package pytest_homeassistant. master and rc do not have it yet.
+          helpers=""
+          if [ -d packages/pytest-home-assistant ]; then
+            helpers="-e packages/pytest-home-assistant"
+          fi
+          # shellcheck disable=SC2086
+          uv pip install --system -e . $helpers -r requirements_test.txt $extra $reqs colorlog isodate --config-settings editable_mode=compat
 
       - name: Mount the integration into Core
         run: |
