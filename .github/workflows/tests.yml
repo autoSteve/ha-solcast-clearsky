@@ -43,8 +43,8 @@ jobs:
           extra=$(grep -E "^(SQLAlchemy|fnv-hash-fast|psutil-home-assistant|paho-mqtt|aiohasupervisor)==" requirements_all.txt)
           # Core dev ships its test helpers as the package pytest_homeassistant. master and rc do not have it yet.
           helpers=""
-          if [ -d packages/pytest-home-assistant ]; then
-            helpers="-e packages/pytest-home-assistant"
+          if [ -d packages/pytest-homeassistant ]; then
+            helpers="-e packages/pytest-homeassistant"
           fi
           # shellcheck disable=SC2086
           uv pip install --system -e . $helpers -r requirements_test.txt $extra colorlog isodate --config-settings editable_mode=compat
